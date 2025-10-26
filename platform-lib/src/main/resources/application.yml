@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: platform-lib
+  profiles:
+    active: dev
+  jackson:
+    time-zone: Africa/Lagos
+    serialization:
+      write-dates-as-timestamps: false
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{correlationId}] %logger{36} - %msg%n"
+  level:
+    root: INFO
+    ng.osun.his: DEBUG
+
+# Micrometer
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+

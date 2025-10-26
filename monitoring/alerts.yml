@@ -1,0 +1,118 @@
+groups:
+  - name: osun-his-alerts
+    interval: 30s
+    rules:
+      # SLO Violations
+      - alert: SLOViolation
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status!~"5.."}[5m]))
+            /
+            sum(rate(http_server_requests_seconds_count[5m]))
+          ) < 0.99
+        for: 5m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "API SLO violated"
+          description: "Error rate exceeds 1% for {{ $labels.endpoint }}"
+
+      # High Latency
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_server_requests_seconds_bucket[5m])) by (le, endpoint)
+          ) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p95 latency detected"
+          description: "p95 latency for {{ $labels.endpoint }} is {{ $value }}s"
+
+      # Lab TAT Breach
+      - alert: LabTatBreach
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(lab_tat_seconds_bucket[5m])) by (le, test_type)
+          ) > 3600
+        for: 10m
+        labels:
+          severity: warning
+          department: lab
+        annotations:
+          summary: "Lab TAT breach"
+          description: "{{ $labels.test_type }} exceeded 1 hour TAT"
+
+      # Pharmacy Turn Breach
+      - alert: PharmacyTurnBreach
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(pharmacy_turn_seconds_bucket[5m])) by (le, status)
+          ) > 1800
+        for: 10m
+        labels:
+          severity: warning
+          department: pharmacy
+        annotations:
+          summary: "Pharmacy turn breach"
+          description: "Dispensing time exceeded 30 minutes"
+
+      # OPD Throughput Drop
+      - alert: OpdThroughputDrop
+        expr: |
+          rate(opd_throughput_total[10m]) < 0.5
+        for: 5m
+        labels:
+          severity: warning
+          department: opd
+        annotations:
+          summary: "OPD throughput dropped"
+          description: "Throughput below expected minimum"
+
+      # Critical Value Alert Not Sent
+      - alert: CriticalAlertNotSent
+        expr: |
+          increase(critical_alert_total{status="FAILED"}[10m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          department: lab
+        annotations:
+          summary: "Critical alert delivery failed"
+          description: "{{ $value }} critical alerts failed to send"
+
+      # Audit Trail Gap
+      - alert: AuditTrailGap
+        expr: |
+          time() - audit_event_timestamp > 300
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Audit trail gap detected"
+          description: "No audit events in last 5 minutes"
+
+      # Rate Limit Exceeded
+      - alert: RateLimitExceeded
+        expr: |
+          increase(rate_limit_exceeded_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limiting triggered"
+          description: "Multiple rate limit violations detected"
+
+      # PHI Access Anomaly
+      - alert: PhiAccessAnomaly
+        expr: |
+          increase(phi_access_total{user_role!="DOCTOR"}[10m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Unusual PHI access pattern"
+          description: "Non-clinical access to PHI by {{ $labels.user_role }}"
+

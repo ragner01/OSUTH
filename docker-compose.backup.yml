@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with automatic backups
+  postgres-backup:
+    image: postgres:16
+    container_name: osun-his-postgres-backup
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-osun_his}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/backup:/usr/local/bin
+      - ./backups:/backups
+    ports:
+      - "5433:5432"  # Different port for backup instance
+    restart: unless-stopped
+    command: >
+      bash -c "
+        # Enable WAL archiving for PITR
+        echo 'wal_level = replica' >> /var/lib/postgresql/data/postgresql.conf
+        echo 'archive_mode = on' >> /var/lib/postgresql/data/postgresql.conf
+        echo 'archive_command = ''test ! -f /backups/wal/%f && cp %p /backups/wal/%f''' >> /var/lib/postgresql/data/postgresql.conf
+        mkdir -p /backups/wal
+        docker-entrypoint.sh postgres
+      "
+
+  # Backup cron service
+  backup-cron:
+    image: postgres:16
+    container_name: osun-his-backup-cron
+    environment:
+      BACKUP_DIR: /backups/postgres
+      RETENTION_DAILY: 7
+      RETENTION_WEEKLY: 4
+      RETENTION_MONTHLY: 12
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${POSTGRES_USER:-postgres}
+      PGDATABASE: ${POSTGRES_DB:-osun_his}
+    volumes:
+      - ./scripts/backup:/usr/local/bin
+      - ./backups:/backups
+    restart: unless-stopped
+    command: >
+      bash -c "
+        chmod +x /usr/local/bin/*.sh
+        # Cron job for daily backups
+        echo '0 2 * * * /usr/local/bin/postgres-backup.sh daily >> /backups/backup.log 2>&1' | crontab -
+        # Cron job for weekly backups (Sunday)
+        echo '0 3 * * 0 /usr/local/bin/postgres-backup.sh weekly >> /backups/backup.log 2>&1' | crontab -
+        # Cron job for monthly backups (1st of month)
+        echo '0 4 1 * * /usr/local/bin/postgres-backup.sh monthly >> /backups/backup.log 2>&1' | crontab -
+        crond -f
+      "
+
+volumes:
+  postgres-data:
+

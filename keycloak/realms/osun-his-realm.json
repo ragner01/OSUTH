@@ -1,0 +1,127 @@
+{
+  "realm": "osun-his-realm",
+  "enabled": true,
+  "displayName": "Osun State Teaching Hospital HIS",
+  "loginTheme": "osun-his",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "duplicateEmailsAllowed": false,
+  
+  "roles": {
+    "realm": [
+      {
+        "name": "DOCTOR",
+        "description": "Medical doctors with access to patient records"
+      },
+      {
+        "name": "NURSE",
+        "description": "Nursing staff with limited access"
+      },
+      {
+        "name": "ADMIN",
+        "description": "System administrators"
+      },
+      {
+        "name": "CASHIER",
+        "description": "Billing and payment staff"
+      },
+      {
+        "name": "PHARMACIST",
+        "description": "Pharmacy staff"
+      },
+      {
+        "name": "LAB_SCIENTIST",
+        "description": "Laboratory scientists"
+      },
+      {
+        "name": "RADIOLOGIST",
+        "description": "Radiology staff"
+      },
+      {
+        "name": "MATRON",
+        "description": "Department matrons"
+      },
+      {
+        "name": "HMO_OFFICER",
+        "description": "Health Maintenance Organization officers"
+      }
+    ]
+  },
+  
+  "clients": [
+    {
+      "clientId": "his-gateway",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "his-gateway-secret",
+      "redirectUris": ["http://localhost:8080/*"],
+      "webOrigins": ["http://localhost:8080"],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true
+    },
+    {
+      "clientId": "his-client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "his-client-secret",
+      "redirectUris": ["http://localhost:8080/*"],
+      "webOrigins": ["http://localhost:8080"],
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  
+  "users": [
+    {
+      "username": "doctor1",
+      "enabled": true,
+      "firstName": "Dr. Adunola",
+      "lastName": "Folorunso",
+      "email": "doctor1@osuth.gov.ng",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "doctor123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["DOCTOR"]
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin@osuth.gov.ng",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "nurse1",
+      "enabled": true,
+      "firstName": "Nurse",
+      "lastName": "Adebisi",
+      "email": "nurse1@osuth.gov.ng",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "nurse123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["NURSE"]
+    }
+  ]
+}
+

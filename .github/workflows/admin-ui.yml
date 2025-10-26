@@ -1,0 +1,56 @@
+name: Admin UI Build & Deploy
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'admin-ui/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin-ui/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: admin-ui/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: admin-ui
+      run: npm ci
+    
+    - name: Run linter
+      working-directory: admin-ui
+      run: npm run lint
+    
+    - name: Build
+      working-directory: admin-ui
+      run: npm run build
+      env:
+        VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+        VITE_KEYCLOAK_URL: ${{ secrets.KEYCLOAK_URL }}
+        VITE_KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
+        VITE_KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: admin-ui-dist
+        path: admin-ui/dist
+        retention-days: 30
+    
+    - name: Deploy to staging
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Deploy to staging server"
+        # Add deployment logic here
+

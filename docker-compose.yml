@@ -1,0 +1,231 @@
+version: '3.8'
+
+services:
+  # PostgreSQL databases per service
+  postgres-core-emr:
+    image: postgres:16
+    container_name: postgres-core-emr
+    environment:
+      POSTGRES_DB: core_emr
+      POSTGRES_USER: osun_his
+      POSTGRES_PASSWORD: osun_his_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_core_emr:/var/lib/postgresql/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osun_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-appointments:
+    image: postgres:16
+    container_name: postgres-appointments
+    environment:
+      POSTGRES_DB: appointments
+      POSTGRES_USER: osun_his
+      POSTGRES_PASSWORD: osun_his_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_appointments:/var/lib/postgresql/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osun_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-orders:
+    image: postgres:16
+    container_name: postgres-orders
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: osun_his
+      POSTGRES_PASSWORD: osun_his_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_orders:/var/lib/postgresql/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osun_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-pharmacy:
+    image: postgres:16
+    container_name: postgres-pharmacy
+    environment:
+      POSTGRES_DB: pharmacy
+      POSTGRES_USER: osun_his
+      POSTGRES_PASSWORD: osun_his_password
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_pharmacy:/var/lib/postgresql/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osun_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres-billing:
+    image: postgres:16
+    container_name: postgres-billing
+    environment:
+      POSTGRES_DB: billing
+      POSTGRES_USER: osun_his
+      POSTGRES_PASSWORD: osun_his_password
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres_billing:/var/lib/postgresql/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U osun_his"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: redis-osun-his
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka & Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - osun-his-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    container_name: keycloak
+    ports:
+      - "8090:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_password
+      KC_HTTP_ENABLED: "true"
+    command: ["start-dev"]
+    depends_on:
+      - postgres-keycloak
+    networks:
+      - osun-his-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  postgres-keycloak:
+    image: postgres:16
+    container_name: postgres-keycloak
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+    networks:
+      - osun-his-network
+    volumes:
+      - postgres_keycloak:/var/lib/postgresql/data
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - osun-his-network
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - osun-his-network
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_core_emr:
+  postgres_appointments:
+  postgres_orders:
+  postgres_pharmacy:
+  postgres_billing:
+  postgres_keycloak:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  osun-his-network:
+    driver: bridge
+

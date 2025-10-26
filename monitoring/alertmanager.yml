@@ -1,0 +1,35 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'on-call'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'on-call-critical'
+    - match:
+        severity: warning
+      receiver: 'on-call-warning'
+
+receivers:
+  - name: 'on-call'
+    webhook_configs:
+      - url: 'http://localhost:8080/alerts'
+  - name: 'on-call-critical'
+    webhook_configs:
+      - url: 'http://localhost:8080/alerts/critical'
+  - name: 'on-call-warning'
+    webhook_configs:
+      - url: 'http://localhost:8080/alerts/warning'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
+

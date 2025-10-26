@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: staff-rota-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/staff_rota
+    username: ${DB_USERNAME:osun_his}
+    password: ${DB_PASSWORD:osun_his_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+server:
+  port: 8088
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+

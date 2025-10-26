@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: notifications-service
+  kafka:
+    bootstrap-servers: localhost:9092
+server:
+  port: 8089
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+

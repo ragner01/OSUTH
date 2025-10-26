@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      routes:
+        - id: core-emr
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/emr/**
+        - id: appointments
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/appointments/**
+        - id: orders
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/orders/**
+        - id: pharmacy
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/pharmacy/**
+        - id: billing
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/billing/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/osun-his-realm
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    ng.osun.his.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+

@@ -1,0 +1,49 @@
+# OpenTelemetry configuration for distributed tracing
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  memory_limiter:
+    limit_mib: 400
+  attributes:
+    actions:
+      - key: service.name
+        action: upsert
+        value: osun-his
+      - key: deployment.environment
+        action: upsert
+        value: production
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  otlp/zipkin:
+    endpoint: zipkin:9411
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes, batch]
+      exporters: [otlp/jaeger, otlp/zipkin]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes, batch]
+      exporters: [prometheus]
+
+  telemetry:
+    logs:
+      level: info
+

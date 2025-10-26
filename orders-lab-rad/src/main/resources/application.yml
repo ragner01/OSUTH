@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: orders-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders
+    username: ${DB_USERNAME:osun_his}
+    password: ${DB_PASSWORD:osun_his_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/osun-his-realm
+server:
+  port: 8084
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+

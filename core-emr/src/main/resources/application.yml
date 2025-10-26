@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: core-emr-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/core_emr?useSSL=false
+    username: ${DB_USERNAME:osun_his}
+    password: ${DB_PASSWORD:osun_his_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/osun-his-realm
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    ng.osun.his: DEBUG
+

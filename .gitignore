@@ -1,0 +1,53 @@
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Maven
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+.pom.xml.versionsBackup
+.pom.xml.tmp
+
+# Gradle
+.gradle/
+build/
+!src/**/build/
+
+# IDE
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+
+# Docker
+.dockerignore
+
+# Environment
+.env
+.env.local
+
+# Flyway
+**/flyway/sql/**/*.log
+
+# Application specific
+application-local.yml
+application-local.properties
+
+# Logs
+logs/
+*.log.*
+
+# Temporary files
+tmp/
+temp/
+

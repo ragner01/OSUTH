@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: identity-service
+  profiles:
+    active: dev
+
+server:
+  port: 8081
+
+keycloak:
+  server:
+    url: http://localhost:8090
+    realm: osun-his-realm
+    client-id: identity-service
+    client-secret: ${KEYCLOAK_CLIENT_SECRET:change-me}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+

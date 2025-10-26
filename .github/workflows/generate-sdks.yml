@@ -1,0 +1,82 @@
+name: Generate SDKs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'core-emr/**'
+      - 'appointments/**'
+      - '*.xml'
+  workflow_dispatch:
+
+jobs:
+  generate-typescript:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install OpenAPI Generator
+      run: npm install -g @openapitools/openapi-generator-cli
+    
+    - name: Generate TypeScript SDKs
+      run: |
+        mkdir -p sdks/typescript
+        for service in core-emr appointments orders-lab-rad pharmacy billing; do
+          if [ -f "$service/src/main/resources/api/openapi.yaml" ]; then
+            openapi-generator-cli generate \
+              -i "$service/src/main/resources/api/openapi.yaml" \
+              -g typescript-fetch \
+              -o "sdks/typescript/$service-api" \
+              -p packageName=@osun-his/$service-api
+          fi
+        done
+    
+    - name: Upload TypeScript SDKs
+      uses: actions/upload-artifact@v3
+      with:
+        name: typescript-sdks
+        path: sdks/typescript
+        retention-days: 30
+  
+  generate-java:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+    
+    - name: Install OpenAPI Generator
+      run: npm install -g @openapitools/openapi-generator-cli
+    
+    - name: Generate Java SDKs
+      run: |
+        mkdir -p sdks/java
+        for service in core-emr appointments orders-lab-rad pharmacy billing; do
+          if [ -f "$service/src/main/resources/api/openapi.yaml" ]; then
+            openapi-generator-cli generate \
+              -i "$service/src/main/resources/api/openapi.yaml" \
+              -g java \
+              -o "sdks/java/$service-api" \
+              -p packageName=ng.osun.his.client.$service \
+              -p groupId=ng.osun.his
+          fi
+        done
+    
+    - name: Upload Java SDKs
+      uses: actions/upload-artifact@v3
+      with:
+        name: java-sdks
+        path: sdks/java
+        retention-days: 30
+
