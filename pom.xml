@@ -26,7 +26,7 @@
 
         <!-- Third-party -->
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.42</lombok.version>
         <flyway.version>9.22.3</flyway.version>
         <testcontainers.version>1.19.3</testcontainers.version>
         <micrometer.version>1.11.1</micrometer.version>
