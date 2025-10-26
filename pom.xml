@@ -35,7 +35,7 @@
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
 
         <!-- Plugins -->
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
         <spotbugs.version>4.8.6</spotbugs.version>
         <checkstyle.version>10.18.2</checkstyle.version>
