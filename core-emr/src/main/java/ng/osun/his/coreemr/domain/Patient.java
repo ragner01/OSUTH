@@ -13,8 +13,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "patients")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -39,6 +38,9 @@ public class Patient extends BaseEntity {
     @Column(name = "middle_name")
     private String middleName;
 
+    @Column(name = "title", length = 10)
+    private String title; // Mr, Mrs, Miss, Dr
+
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
@@ -53,6 +55,42 @@ public class Patient extends BaseEntity {
 
     @Column(name = "residential_address", columnDefinition = "TEXT")
     private String residentialAddress;
+
+    @Column(name = "lga")
+    private String lga;
+
+    @Column(name = "state")
+    private String state;
+
+    @Column(name = "nationality")
+    private String nationality = "Nigerian";
+
+    @Column(name = "marital_status", length = 20)
+    private String maritalStatus; // SINGLE, MARRIED, DIVORCED, WIDOWED
+
+    @Column(name = "occupation")
+    private String occupation;
+
+    @Column(name = "blood_group", length = 5)
+    private String bloodGroup; // A+, B+, O+, etc.
+
+    @Column(name = "genotype", length = 5)
+    private String genotype; // AA, AS, SS, etc.
+
+    @Column(name = "insurance_number", length = 50)
+    private String insuranceNumber;
+
+    @Column(name = "insurance_provider", length = 100)
+    private String insuranceProvider;
+
+    @Column(name = "emergency_contact_name")
+    private String emergencyContactName;
+
+    @Column(name = "emergency_contact_phone")
+    private String emergencyContactPhone;
+
+    @Column(name = "emergency_contact_relationship")
+    private String emergencyContactRelationship;
 
     @ElementCollection
     @CollectionTable(name = "patient_addresses", joinColumns = @JoinColumn(name = "patient_id"))
@@ -89,6 +127,8 @@ public class Patient extends BaseEntity {
 
     @Column(name = "deletion_reason")
     private String deletionReason;
+    
+    // Getters and setters for deletionReason (Lombok handles this)
     
     /**
      * Create cross-facility referral context.
