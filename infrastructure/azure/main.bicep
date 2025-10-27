@@ -16,19 +16,15 @@ var appServicePlanSku = environment == 'prod' ? 'P1V3' : 'B1'
 var appServicePlanTier = environment == 'prod' ? 'PremiumV3' : 'Basic'
 var appInstanceCount = environment == 'prod' ? 3 : 1
 
-// Container Apps Environment
-resource containerAppsEnv 'Microsoft.App/managedEnvironments@2023-05-01' = {
-  name: 'osuth-${environment}-env'
-  location: location
-  properties: {
-    appLogsConfiguration: {
-      destination: 'log-analytics'
-      logAnalyticsConfiguration: {
-        customerId: logAnalyticsWorkspace.properties.customerId
-        sharedKey: logAnalyticsWorkspace.listKeys().primarySharedKey
-      }
-    }
-  }
+// Use existing Container Apps Environment
+// Note: Azure allows only 1 Container App Environment per subscription
+// Modify this name to use your existing environment
+param existingContainerEnvName string = 'albumapi-java-env-251027140602'
+param existingContainerEnvResourceGroup string = 'albumapi-java-rg-251027140602'
+
+resource containerAppsEnv 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
+  name: existingContainerEnvName
+  scope: resourceGroup(existingContainerEnvResourceGroup)
 }
 
 // Log Analytics Workspace
@@ -178,11 +174,11 @@ resource serviceApp 'Microsoft.App/containerApps@2023-05-01' = [for service in s
             }
             {
               name: 'SPRING_DATASOURCE_USERNAME'
-              secretRef: 'db-username'
+              value: 'osuthadmin'
             }
             {
               name: 'SPRING_DATASOURCE_PASSWORD'
-              secretRef: 'db-password'
+              value: 'ChangeMe123!'
             }
             {
               name: 'SPRING_REDIS_HOST'
@@ -190,11 +186,11 @@ resource serviceApp 'Microsoft.App/containerApps@2023-05-01' = [for service in s
             }
             {
               name: 'SPRING_REDIS_PASSWORD'
-              secretRef: 'redis-password'
+              value: ''
             }
             {
               name: 'KEYCLOAK_SERVER_URL'
-              secretRef: 'keycloak-url'
+              value: 'http://localhost:8080'
             }
             {
               name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
