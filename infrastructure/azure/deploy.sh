@@ -38,7 +38,7 @@ echo "👤 Deploying as: $CURRENT_USER"
 
 # Create resource group
 RESOURCE_GROUP="osuth-his-${ENVIRONMENT}-rg"
-LOCATION="westus"
+LOCATION="eastus"
 
 echo "📦 Creating resource group: $RESOURCE_GROUP"
 az group create \
