@@ -41,7 +41,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2022-10
 
 // Azure Container Registry
 resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
-  name: 'osuth${environment}acr'
+  name: 'osuth${environment}acr${uniqueString(resourceGroup().id)}'
   location: location
   sku: {
     name: environment == 'prod' ? 'Premium' : 'Standard'
@@ -55,7 +55,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
 // PostgreSQL Flexible Server
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2023-06-01-preview' = {
   name: 'osuth-${environment}-postgres'
-  location: location
+  location: 'westus'
   sku: {
     name: environment == 'prod' ? 'Standard_D4s_v3' : 'Standard_B1ms'
     tier: environment == 'prod' ? 'GeneralPurpose' : 'Burstable'
@@ -94,7 +94,7 @@ resource redisCache 'Microsoft.Cache/redis@2023-08-01' = {
 
 // Key Vault
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
-  name: 'osuth-${environment}-kv'
+  name: 'osuth-${environment}-kv-${uniqueString(resourceGroup().id)}'
   location: location
   properties: {
     sku: {
