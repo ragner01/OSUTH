@@ -38,7 +38,7 @@ jobs:
         done
     
     - name: Upload TypeScript SDKs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v5
       with:
         name: typescript-sdks
         path: sdks/typescript
@@ -74,7 +74,7 @@ jobs:
         done
     
     - name: Upload Java SDKs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v5
       with:
         name: java-sdks
         path: sdks/java
