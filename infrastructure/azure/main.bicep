@@ -276,8 +276,10 @@ output postgresServerFqdn string = postgresServer.properties.fullyQualifiedDomai
 output redisHostName string = redisCache.properties.hostName
 output keyVaultName string = keyVault.name
 output applicationInsightsConnectionString string = appInsights.properties.ConnectionString
-output serviceAppUrls object = {
-  for service in services: service => 'https://${serviceApp[service].properties.configuration.ingress.fqdn}'
-}
 output apiGatewayUrl string = apiGateway.properties.configuration.ingress.fqdn
 
+
+output serviceAppUrls array = [for i in range(0, length(services)): {
+  name: services[i]
+  url: 'https://${serviceApp[i].properties.configuration.ingress.fqdn}'
+}]

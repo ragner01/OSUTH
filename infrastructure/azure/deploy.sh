@@ -38,7 +38,7 @@ echo "👤 Deploying as: $CURRENT_USER"
 
 # Create resource group
 RESOURCE_GROUP="osuth-his-${ENVIRONMENT}-rg"
-LOCATION="eastus"
+LOCATION="westus"
 
 echo "📦 Creating resource group: $RESOURCE_GROUP"
 az group create \
@@ -46,16 +46,16 @@ az group create \
     --location "$LOCATION" \
     --tags Environment="$ENVIRONMENT" Project="OSUTH"
 
-# Grant permissions
+# Grant permissions (optional if already Owner)
 echo "🔑 Granting required permissions..."
 az role assignment create \
     --role "Owner" \
     --assignee "$CURRENT_USER" \
     --scope "/subscriptions/$SUBSCRIPTION_ID" \
-    --output none
+    --output none 2>/dev/null || echo "⚠️  Permission grant skipped (already Owner or permission denied)"
 
-echo "⏳ Waiting for permissions to propagate (30s)..."
-sleep 30
+echo "⏳ Waiting for permissions to propagate (10s)..."
+sleep 10
 
 # Deploy infrastructure
 echo "🏗️  Deploying infrastructure with Bicep..."
