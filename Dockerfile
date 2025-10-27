@@ -1,5 +1,5 @@
 # Multi-stage build for Osun HIS
-FROM eclipse-temurin:11-jdk AS builder
+FROM eclipse-temurin:25-jdk AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY . .
 RUN ./mvnw clean package -DskipTests
 
 # Runtime stage
-FROM eclipse-temurin:11-jre
+FROM eclipse-temurin:25-jre
 
 WORKDIR /app
 
