@@ -13,7 +13,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "patients")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -128,7 +129,14 @@ public class Patient extends BaseEntity {
     @Column(name = "deletion_reason")
     private String deletionReason;
     
-    // Getters and setters for deletionReason (Lombok handles this)
+    // Explicit getter/setter for Lombok compatibility
+    public void setDeletedReason(String reason) {
+        this.deletionReason = reason;
+    }
+    
+    public String getDeletedReason() {
+        return deletionReason;
+    }
     
     /**
      * Create cross-facility referral context.
