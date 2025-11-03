@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-admin-client</artifactId>
-            <version>25.0.1</version>
+            <version>26.0.7</version>
         </dependency>
 
         <!-- Platform lib -->
